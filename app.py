@@ -1,16 +1,25 @@
-import os
+from flask import Flask, request, jsonify
 
-from flask import Flask
+from utils import result_data
 
 app = Flask(__name__)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
 
-
-@app.post("/perform_query")
+@app.route("/perform_query")
 def perform_query():
-    # нужно взять код из предыдущего ДЗ
-    # добавить команду regex
-    # добавить типизацию в проект, чтобы проходила утилиту mypy app.py
-    return app.response_class('', content_type="text/plain")
+    try:
+        file_name: str = request.args.get('file_name')
+        cmd1: str = request.args.get('cmd1')
+        value1: str = request.args.get('value1')
+        cmd2: str = request.args.get('cmd2')
+        value2: str = request.args.get('value2')
+    except (KeyError, ValueError) as error:
+        return jsonify(error.messages), 400
+    commands_list: dict = {cmd1: value1, cmd2: value2}
+    result = result_data(file_name, commands_list)
+    get_result: list = list(result)
+    return jsonify(get_result)
+
+
+if __name__ == '__main__':
+    app.run()
